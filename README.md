@@ -1,2 +1,3 @@
-# juego-laberinto
-Juego de laberinto en JS con HTML
+# Juego laberinto
+Juego de laberinto en JS con HTML.
+
