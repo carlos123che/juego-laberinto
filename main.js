@@ -10,8 +10,14 @@ const playerPosition = {
     y: undefined
 };
 
+const giftPosition = {
+    x:undefined,
+    y:undefined
+};
 
+let enemiesPositions = [];
 
+let noMapa = 0; //nivel
 let canvasSize;
 let elementsSize;
 window.addEventListener('load', setCanvasSize);
@@ -23,7 +29,7 @@ function startGame() {
 
     const cantidadElementos = 10;
 
-    const noMapa = 0; //nivel
+    
     const gamemap = maps[noMapa];
     const mapRows = gamemap.trim().split('\n'); // separar las filas por salto de linea y eliminar espacios vacios.
     const mapRowCols = mapRows.map(row => row.trim().split('')); //la variable row es cada una de las filas (cada posición del arreglo) y el .split('') nos separa caracter por caracter y cadap posicion del arreglo sera un arreglo.
@@ -32,7 +38,7 @@ function startGame() {
     game.textAlign = 'end';
 
     game.clearRect(0, 0, canvasSize, canvasSize);
-
+    enemiesPositions = [];
     mapRowCols.forEach((row, rowIndex) => {
         row.forEach((column, columnIndex) => {
             const emoji = emojis[column];
@@ -42,6 +48,12 @@ function startGame() {
             if (playerPosition.x == undefined && playerPosition.y == undefined && column == 'O') {
                 playerPosition.x = posX;
                 playerPosition['y'] = posY;
+            }
+            else if(column=='I'){
+                giftPosition.x = posX;
+                giftPosition.y = posY;
+            }else if(column == 'X'){
+                enemiesPositions.push({x:posX, y:posY});
             }
 
             game.fillText(emoji, posX + 10
@@ -131,6 +143,24 @@ function moveByKey(event) {
 }
 
 function movePlayer() {
+    const xColisionGift = playerPosition.x.toFixed(2) == giftPosition.x.toFixed(2) ;
+    const yColisionGift = playerPosition.y.toFixed(2) == giftPosition.y.toFixed(2) ;
+
+    const enemyCollision = enemiesPositions.find(enemy => {
+        const xCollisionEnemy = enemy.x .toFixed(2) == playerPosition.x.toFixed(2); 
+        const yCollisionEnemy = enemy.y .toFixed(2) == playerPosition.y.toFixed(2);
+        return xCollisionEnemy && yCollisionEnemy; 
+     });
+
+    if (xColisionGift && yColisionGift) {  //jugador colisiona regalo
+        noMapa++;
+        setCanvasSize();
+    }else if( enemyCollision){
+        console.log('BOOOOOM');
+    }
     game.font = elementsSize - 2 + 'px Verdana';
-    game.fillText(emojis['PLAYER'], playerPosition.x + 7.5, playerPosition.y);
+    game.fillText(emojis['PLAYER'], playerPosition.x + 8, playerPosition.y);
+
+
 }
+
