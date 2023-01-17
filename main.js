@@ -4,6 +4,9 @@ const btnUp = document.querySelector('#up');
 const btnDown = document.querySelector('#down');
 const btnLeft = document.querySelector('#left');
 const btnRight = document.querySelector('#right');
+const vidasSpan = document.querySelector('#lives');
+
+
 
 const playerPosition = {
     x: undefined,
@@ -20,6 +23,9 @@ let enemiesPositions = [];
 let noMapa = 0; //nivel
 let canvasSize;
 let elementsSize;
+let vidas = 3;
+
+
 window.addEventListener('load', setCanvasSize);
 window.addEventListener('resize', setCanvasSize);
 
@@ -29,8 +35,12 @@ function startGame() {
 
     const cantidadElementos = 10;
 
-    
+    showLives();
     const gamemap = maps[noMapa];
+    if(gamemap == undefined){
+        gameWin();
+        return;
+    }
     const mapRows = gamemap.trim().split('\n'); // separar las filas por salto de linea y eliminar espacios vacios.
     const mapRowCols = mapRows.map(row => row.trim().split('')); //la variable row es cada una de las filas (cada posición del arreglo) y el .split('') nos separa caracter por caracter y cadap posicion del arreglo sera un arreglo.
 
@@ -153,14 +163,49 @@ function movePlayer() {
      });
 
     if (xColisionGift && yColisionGift) {  //jugador colisiona regalo
-        noMapa++;
-        setCanvasSize();
+        levelWin();
     }else if( enemyCollision){
         console.log('BOOOOOM');
+        levelFail();
     }
+
     game.font = elementsSize - 2 + 'px Verdana';
     game.fillText(emojis['PLAYER'], playerPosition.x + 8, playerPosition.y);
 
 
 }
 
+
+function gameWin() {
+    console.log('Ganaste');
+}
+
+function levelWin() {
+    noMapa++;
+    setCanvasSize();
+}
+
+function levelFail(){
+
+    
+    if(vidas > 1){
+        vidas --;
+    }else{
+        noMapa = 0;
+        vidas = 3;
+    }
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
+    startGame();
+}   
+
+function showLives(){
+    const heartsArray = Array(vidas).fill(emojis['HEART']);
+    //crear un array de la cantidad de elementos de las vidas sin saber el tipo [,,]
+    let corazones = '';
+    heartsArray.forEach( heart => {
+        corazones += heart;  
+    });
+
+    vidasSpan.innerHTML = corazones;
+}
