@@ -5,7 +5,9 @@ const btnDown = document.querySelector('#down');
 const btnLeft = document.querySelector('#left');
 const btnRight = document.querySelector('#right');
 const vidasSpan = document.querySelector('#lives');
-
+const spanTime = document.querySelector('#time');
+const recordSpan = document.querySelector('#record');
+const resultadoP = document.querySelector('#result');
 
 
 const playerPosition = {
@@ -25,6 +27,10 @@ let canvasSize;
 let elementsSize;
 let vidas = 3;
 
+let timeStart;
+let timePlayer;
+let timeInterval;
+
 
 window.addEventListener('load', setCanvasSize);
 window.addEventListener('resize', setCanvasSize);
@@ -40,6 +46,12 @@ function startGame() {
     if(gamemap == undefined){
         gameWin();
         return;
+    }
+
+    if(!timeStart){
+        timeStart = Date.now();
+        timeInterval = setInterval( showTime, 100);
+        showRecord();
     }
     const mapRows = gamemap.trim().split('\n'); // separar las filas por salto de linea y eliminar espacios vacios.
     const mapRowCols = mapRows.map(row => row.trim().split('')); //la variable row es cada una de las filas (cada posición del arreglo) y el .split('') nos separa caracter por caracter y cadap posicion del arreglo sera un arreglo.
@@ -93,7 +105,10 @@ function setCanvasSize() {
     canvas.setAttribute('width', canvasSize);
     canvas.setAttribute('height', canvasSize);
 
-    elementsSize = canvasSize / 10.5;
+    elementsSize = canvasSize.toFixed(3) / 10.5;
+    
+    playerPosition.x = undefined;
+    playerPosition.y = undefined;
 
     startGame();
 }
@@ -177,7 +192,22 @@ function movePlayer() {
 
 
 function gameWin() {
-    console.log('Ganaste');
+    clearInterval(timeInterval);
+
+    const recordTime = localStorage.getItem('record_time');
+    const playerTime = Date.now() -  timeStart;
+
+    if(recordTime){
+        if(recordTime >= playerTime){
+            localStorage.setItem('record_time', playerTime);
+            resultadoP.innerHTML = 'Haz superado el record :)';
+        }else{
+            resultadoP.innerHTML = 'No superaste el record :( ';
+        }
+    }else{
+        localStorage.setItem('record_time', playerTime);
+        resultadoP.innerHTML = 'Primera vez? ';
+    }
 }
 
 function levelWin() {
@@ -190,6 +220,7 @@ function levelFail(){
     
     if(vidas > 1){
         vidas --;
+        timeStart = undefined;
     }else{
         noMapa = 0;
         vidas = 3;
@@ -208,4 +239,14 @@ function showLives(){
     });
 
     vidasSpan.innerHTML = corazones;
+}
+
+function showTime() {
+    spanTime.innerHTML = Date.now() - timeStart;
+
+}
+
+function showRecord() {
+
+    recordSpan.innerHTML = localStorage.getItem('record_time');
 }
